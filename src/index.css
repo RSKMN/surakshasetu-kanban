@@ -1,68 +1,54 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Utilities */
+@layer utilities {
+  .animated-blur {
+    @apply absolute -z-10;
+    inset: -20% -20% auto -10%;
+    filter: blur(80px);
+    background:
+      radial-gradient(120px 120px at 20% 20%, rgba(99,102,241,0.35), transparent 70%),
+      radial-gradient(160px 160px at 60% 30%, rgba(16,185,129,0.25), transparent 70%),
+      radial-gradient(140px 140px at 80% 70%, rgba(6,182,212,0.25), transparent 70%);
+    animation: float 18s ease-in-out infinite alternate;
   }
-  a:hover {
-    color: #747bff;
+  @keyframes float {
+    0% { transform: translateY(0px) scale(1); }
+    100% { transform: translateY(-25px) scale(1.03); }
   }
-  button {
-    background-color: #f9f9f9;
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148,163,184,0.25);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
   }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.4); }
+}
+
+/* Components */
+@layer components {
+  .glass-card { @apply rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl; }
+  .glass-col  { @apply rounded-2xl bg-white/10 backdrop-blur-xl shadow-xl; }
+  .glass-tile { @apply rounded-xl  bg-white/5  backdrop-blur-md border border-white/10; }
+
+  .task-card  { @apply glass-tile p-4 hover:bg-white/10 transition-colors cursor-grab active:cursor-grabbing; }
+
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium shadow-lg shadow-indigo-900/20 hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-cyan-300;
+  }
+  .btn-glass {
+    @apply px-5 py-2.5 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 text-white font-medium hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-cyan-300;
+  }
+  .btn-ghost {
+    @apply px-4 py-2 rounded-lg border border-white/10 text-slate-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-300;
+  }
+
+  .feature-card { @apply glass-card p-5 border border-white/10 hover:bg-white/15 transition-colors; }
+
+  .badge-green { @apply text-[10px] px-2 py-1 rounded-full border bg-emerald-500/15 text-emerald-200 border-emerald-400/30; }
+  .badge-amber { @apply text-[10px] px-2 py-1 rounded-full border bg-amber-500/15  text-amber-200  border-amber-400/30; }
+  .badge-sky   { @apply text-[10px] px-2 py-1 rounded-full border bg-sky-500/15    text-sky-200    border-sky-400/30; }
 }

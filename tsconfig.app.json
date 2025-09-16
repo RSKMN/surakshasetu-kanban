@@ -6,28 +6,17 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-
-    /* Bundler mode (optimized for Vite) */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
-    /* Linting / safety */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-
-    /* Path aliases (optional; uncomment and adjust as needed)
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
-    */
+    "noUncheckedSideEffectImports": true
   },
   "include": ["src"]
 }
