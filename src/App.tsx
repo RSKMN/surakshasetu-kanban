@@ -60,10 +60,11 @@ export default function App() {
   async function updateColor(c: string) {
     if (!user) return;
     setStickyColor(c);
-    await supabase
+    const { error } = await supabase
       .from("profiles")
       .upsert({ id: user.id, sticky_color: c })
       .eq("id", user.id);
+    if (error) console.error("Update color failed:", error.message);
   }
 
   async function signInWithGoogle() {
@@ -146,13 +147,27 @@ export default function App() {
                 ))}
               </div>
             </div>
+
+            {/* Improved right panel */}
             <div className="md:col-span-5">
-              <div className="glass-card p-4 md:p-6 border border-white/10">
-                <div className="w-full h-80 rounded-xl bg-gradient-to-br from-cyan-400/20 to-indigo-300/20 grid place-items-center text-slate-200/90">
-                  <span className="text-sm">Collaborate visually with clear priorities.</span>
+              <div className="relative glass-card p-0 border border-white/10 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-indigo-400/10 to-fuchsia-400/10" />
+                <div className="relative p-6 h-80 grid grid-rows-2 gap-4">
+                  <div className="flex gap-4">
+                    <div className="flex-1 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md p-3 animate-pulse" />
+                    <div className="w-28 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md p-3" />
+                  </div>
+                  <div className="flex gap-4 items-end">
+                    <div className="w-28 h-20 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md" />
+                    <div className="flex-1 h-24 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md relative">
+                      <div className="absolute -top-4 -left-3 w-10 h-10 rounded-lg" style={{ backgroundColor: "#FDE68A" }} />
+                      <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-300/90 animate-ping" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+            {/* End improved right panel */}
           </div>
         </section>
       </main>

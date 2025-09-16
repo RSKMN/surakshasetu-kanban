@@ -58,7 +58,8 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
 
   async function fetchTasks() {
     setLoading(true);
-    const { data } = await supabase.from("tasks").select("*").order("id");
+    const { data, error } = await supabase.from("tasks").select("*").order("id");
+    if (error) console.error("Fetch failed:", error.message);
     setTasks((data as Task[]) || []);
     setLoading(false);
   }
@@ -83,7 +84,10 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
       update.sticky_color = stickyColor;
     }
     const { error } = await supabase.from("tasks").update(update).eq("id", draggableId);
-    if (error) console.error("Update failed", error.message);
+    if (error) {
+      console.error("Drag update failed", error.message);
+      alert("Move failed: " + error.message);
+    }
   }
 
   return (
@@ -125,8 +129,9 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
                           status === "in_progress" && (task.sticky_color || stickyColor)
                             ? task.sticky_color || stickyColor
                             : undefined;
+                        const did = String(task.id); // ensure string id for DnD
                         return (
-                          <Draggable draggableId={task.id} index={index} key={task.id}>
+                          <Draggable draggableId={did} index={index} key={did}>
                             {(provided: DraggableProvided) => (
                               <div
                                 ref={provided.innerRef}

@@ -18,6 +18,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
   const [priority, setPriority] = useState<"Low" | "Medium" | "High">(task?.priority || "Medium");
   const [status, setStatus] = useState<"todo" | "in_progress" | "done">(task?.status || "todo");
   const [description, setDescription] = useState(task?.description || "");
+  const [saving, setSaving] = useState(false);
   const firstFieldRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -38,15 +39,31 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
       alert("Task title is required");
       return;
     }
+    setSaving(true);
     if (task) {
       const { error } = await supabase
         .from("tasks")
         .update({ title, priority, status, description })
         .eq("id", task.id);
-      if (error) console.error("Update failed:", error.message);
+      setSaving(false);
+      if (error) {
+        console.error("Update failed:", error.message);
+        alert("Update failed: " + error.message);
+        return;
+      }
     } else {
-      const { error } = await supabase.from("tasks").insert([{ title, priority, status, description }]);
-      if (error) console.error("Insert failed:", error.message);
+      // attach owner for RLS
+      const { data: sessionData } = await supabase.auth.getSession();
+      const owner = sessionData.session?.user?.id;
+      const { error } = await supabase
+        .from("tasks")
+        .insert([{ title, priority, status, description, owner }]);
+      setSaving(false);
+      if (error) {
+        console.error("Insert failed:", error.message);
+        alert("Insert failed: " + error.message);
+        return;
+      }
     }
     onClose();
   }
@@ -54,12 +71,15 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
   async function handleDelete() {
     if (!task) return;
     const { error } = await supabase.from("tasks").delete().eq("id", task.id);
-    if (error) console.error("Delete failed:", error.message);
+    if (error) {
+      console.error("Delete failed:", error.message);
+      alert("Delete failed: " + error.message);
+    }
     onClose();
   }
 
   const selectClass =
-    "w-full rounded-lg bg-white/10 text-slate-100 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300 [&>option]:bg-slate-900 [&>option]:text-slate-100";
+    "w-full rounded-lg bg-slate-900 text-slate-100 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300 [&>option]:bg-slate-900 [&>option]:text-slate-100";
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
@@ -125,7 +145,9 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
           )}
           <div className="flex gap-3">
             <button onClick={onClose} className="btn-ghost">Cancel</button>
-            <button onClick={handleSave} className="btn-primary">Save Task</button>
+            <button onClick={handleSave} disabled={saving} className="btn-primary">
+              {saving ? "Saving..." : "Save Task"}
+            </button>
           </div>
         </div>
       </div>
