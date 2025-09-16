@@ -58,6 +58,9 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
     onClose();
   }
 
+  const selectClass =
+    "w-full rounded-lg bg-white/10 text-slate-100 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300 [&>option]:bg-slate-900 [&>option]:text-slate-100";
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
       <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-white/10 backdrop-blur-xl shadow-2xl text-slate-100">
@@ -75,19 +78,15 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
               ref={firstFieldRef}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300 placeholder:text-slate-300/70"
+              className="w-full rounded-lg bg-white/10 text-slate-100 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300 placeholder:text-slate-300/70"
               placeholder="e.g. Design login screen"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm mb-1">Priority</label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as any)}
-                className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300"
-              >
+              <select value={priority} onChange={(e) => setPriority(e.target.value as any)} className={selectClass}>
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
@@ -96,24 +95,11 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
 
             <div>
               <label className="block text-sm mb-1">Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as any)}
-                className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300"
-              >
+              <select value={status} onChange={(e) => setStatus(e.target.value as any)} className={selectClass}>
                 <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
                 <option value="done">Completed</option>
               </select>
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1">Labels</label>
-              <div className="flex gap-2">
-                <span className="badge-green">Safety</span>
-                <span className="badge-amber">UI/UX</span>
-                <span className="badge-sky">API</span>
-              </div>
             </div>
           </div>
 
@@ -123,7 +109,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300 placeholder:text-slate-300/70"
+              className="w-full rounded-lg bg-white/10 text-slate-100 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300 placeholder:text-slate-300/70"
               placeholder="Details that help the team move forward…"
             />
           </div>

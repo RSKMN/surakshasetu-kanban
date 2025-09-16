@@ -21,11 +21,10 @@ const getBaseUrl = () => {
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [page, setPage] = useState<"landing" | "board" | "callback">(() =>
-    window.location.pathname.startsWith("/auth/callback")
-      ? "callback"
-      : "landing"
+    window.location.pathname.startsWith("/auth/callback") ? "callback" : "landing"
   );
   const [stickyColor, setStickyColor] = useState<string>("#FDE68A");
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -42,7 +41,9 @@ export default function App() {
       if (u) {
         setPage("board");
         await ensureProfileLoaded(u.id);
-      } else setPage("landing");
+      } else {
+        setPage("landing");
+      }
     });
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -72,8 +73,16 @@ export default function App() {
       options: { redirectTo },
     });
   }
+
   async function signOut() {
-    await supabase.auth.signOut();
+    setSigningOut(true);
+    const { error } = await supabase.auth.signOut();
+    setSigningOut(false);
+    if (error) {
+      console.error("Sign-out failed:", error.message);
+      return;
+    }
+    setUser(null);
     setPage("landing");
   }
 
@@ -117,22 +126,12 @@ export default function App() {
                 Mobile App
               </h2>
               <p className="mt-5 text-slate-300/90 md:text-lg">
-                Plan, prioritize, and deliver with a delightful Kanban experience.
+                Plan, prioritize, and deliver with a delightful Kanban experience crafted for civic impact.
               </p>
               <div className="mt-8 flex gap-4">
                 <button onClick={signInWithGoogle} className="btn-glass">
                   Start Collaborating
                 </button>
-                <a
-                  href="#features"
-                  className="btn-ghost"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  Explore Features
-                </a>
               </div>
               <div className="mt-10 grid sm:grid-cols-3 gap-4">
                 {[
@@ -149,10 +148,9 @@ export default function App() {
             </div>
             <div className="md:col-span-5">
               <div className="glass-card p-4 md:p-6 border border-white/10">
-                <div className="w-full h-80 bg-gradient-to-br from-cyan-400/20 to-indigo-300/20 rounded-xl" />
-                <p className="text-slate-300/90 text-sm mt-3">
-                  Modern hero patterns with glass effects.
-                </p>
+                <div className="w-full h-80 rounded-xl bg-gradient-to-br from-cyan-400/20 to-indigo-300/20 grid place-items-center text-slate-200/90">
+                  <span className="text-sm">Collaborate visually with clear priorities.</span>
+                </div>
               </div>
             </div>
           </div>
@@ -176,6 +174,7 @@ export default function App() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <div className="text-slate-300 text-xs">Select your color here</div>
           <input
             type="color"
             value={stickyColor}
@@ -183,7 +182,9 @@ export default function App() {
             title="Sticky color"
             className="h-9 w-9 rounded-md bg-transparent border border-white/20"
           />
-          <button onClick={signOut} className="btn-ghost">Sign out</button>
+          <button onClick={signOut} disabled={signingOut} className="btn-ghost">
+            {signingOut ? "Signing out..." : "Sign out"}
+          </button>
         </div>
       </header>
 

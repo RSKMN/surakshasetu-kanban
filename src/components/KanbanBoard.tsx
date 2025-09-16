@@ -79,12 +79,9 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
 
     const newStatus = destination.droppableId as Task["status"];
     const update: Partial<Task> = { status: newStatus };
-
-    // Sticky note feature: when moving to in_progress, stamp user's chosen stickyColor
     if (newStatus === "in_progress") {
       update.sticky_color = stickyColor;
     }
-
     const { error } = await supabase.from("tasks").update(update).eq("id", draggableId);
     if (error) console.error("Update failed", error.message);
   }
