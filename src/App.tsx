@@ -1,7 +1,9 @@
+// src/App.tsx
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
 import KanbanBoard from "./components/KanbanBoard";
 import Callback from "./auth/Callback";
+import { ensureProfile } from "./lib/ensureProfile";
 
 type User = {
   id: string;
@@ -20,18 +22,20 @@ const getBaseUrl = () => {
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [page, setPage] = useState<"landing" | "board" | "callback">(() =>
-    window.location.pathname.startsWith("/auth/callback") ? "callback" : "landing"
+  const [page, setPage] = useState<"landing" | "board" | "callback">(
+    () => (window.location.pathname.startsWith("/auth/callback") ? "callback" : "landing")
   );
-  const [stickyColor, setStickyColor] = useState<string>("#FDE68A");
+  const [stickyColor, setStickyColor] = useState("#FDE68A");
   const [signingOut, setSigningOut] = useState(false);
 
+  // Load session, ensure profile exists, and fetch profile prefs
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const u = (session?.user as User) ?? null;
       setUser(u);
       if (u) {
         setPage("board");
+        await ensureProfile();
         await ensureProfileLoaded(u.id);
       }
     });
@@ -40,6 +44,7 @@ export default function App() {
       setUser(u);
       if (u) {
         setPage("board");
+        await ensureProfile();
         await ensureProfileLoaded(u.id);
       } else {
         setPage("landing");
@@ -49,12 +54,12 @@ export default function App() {
   }, []);
 
   async function ensureProfileLoaded(uid: string) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("sticky_color")
       .eq("id", uid)
       .maybeSingle();
-    if (data?.sticky_color) setStickyColor(data.sticky_color);
+    if (!error && data?.sticky_color) setStickyColor(data.sticky_color);
   }
 
   async function updateColor(c: string) {
@@ -62,17 +67,19 @@ export default function App() {
     setStickyColor(c);
     const { error } = await supabase
       .from("profiles")
-      .upsert({ id: user.id, sticky_color: c })
+      .update({ sticky_color: c })
       .eq("id", user.id);
     if (error) console.error("Update color failed:", error.message);
   }
 
   async function signInWithGoogle() {
     const redirectTo = `${getBaseUrl()}/auth/callback`;
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
     });
+    if (error) console.error(error);
+    if (data?.url) window.location.href = data.url;
   }
 
   async function signOut() {
@@ -134,21 +141,7 @@ export default function App() {
                   Start Collaborating
                 </button>
               </div>
-              <div className="mt-10 grid sm:grid-cols-3 gap-4">
-                {[
-                  { label: "Tasks Organized", value: "Kanban Flow" },
-                  { label: "Real‑time Sync", value: "Supabase" },
-                  { label: "UX Aesthetic", value: "Glassmorphism" },
-                ].map((k) => (
-                  <div key={k.label} className="glass-card p-4 text-slate-200 border border-white/10">
-                    <p className="text-sm text-slate-300/80">{k.label}</p>
-                    <p className="text-lg font-semibold">{k.value}</p>
-                  </div>
-                ))}
-              </div>
             </div>
-
-            {/* Improved right panel */}
             <div className="md:col-span-5">
               <div className="relative glass-card p-0 border border-white/10 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-indigo-400/10 to-fuchsia-400/10" />
@@ -167,7 +160,6 @@ export default function App() {
                 </div>
               </div>
             </div>
-            {/* End improved right panel */}
           </div>
         </section>
       </main>
