@@ -49,13 +49,11 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
           .eq("id", task.id);
         if (error) throw error;
       } else {
-        // Fetch session to stamp created_by (RLS)
         const { data: sessionData, error: sessErr } = await supabase.auth.getSession();
         if (sessErr) throw sessErr;
         const created_by = sessionData.session?.user?.id;
         if (!created_by) throw new Error("Not authenticated");
 
-        // Insert without select to avoid post-insert RLS reads if SELECT policy is misconfigured
         const { error } = await supabase
           .from("tasks")
           .insert({ title, priority, status, description, created_by });
@@ -91,7 +89,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
       <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-white/10 backdrop-blur-xl shadow-2xl text-slate-100">
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <h3 className="text-lg font-semibold">{task ? "Edit Task" : "Add New Task"}</h3>
-          <button onClick={onClose} className="text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-300 rounded-md px-2" aria-label="Close">
+          <button type="button" onClick={onClose} className="text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-300 rounded-md px-2" aria-label="Close">
             ✕
           </button>
         </div>
@@ -142,15 +140,15 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
 
         <div className="p-5 border-t border-white/10 flex items-center justify-between">
           {task ? (
-            <button onClick={handleDelete} className="px-4 py-2 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white focus:outline-none focus:ring-2 focus:ring-rose-300">
+            <button type="button" onClick={handleDelete} className="px-4 py-2 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white focus:outline-none focus:ring-2 focus:ring-rose-300">
               Delete
             </button>
           ) : (
             <div />
           )}
           <div className="flex gap-3">
-            <button onClick={onClose} className="btn-ghost">Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="btn-primary">
+            <button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
+            <button type="button" onClick={handleSave} disabled={saving} className="btn-primary">
               {saving ? "Saving..." : "Save Task"}
             </button>
           </div>
