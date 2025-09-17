@@ -5,15 +5,18 @@ import { supabase } from "../lib/supabaseClient";
 type TaskStatus = "todo" | "in_progress" | "done";
 type TaskPriority = "Low" | "Medium" | "High";
 
+// src/components/TaskModal.tsx
 export type Task = {
   id: string;
   title: string;
   description?: string | null;
-  priority?: TaskPriority | null;
-  status: TaskStatus;
+  priority?: "Low" | "Medium" | "High" | null;
+  status: "todo" | "in_progress" | "done";
   sticky_color?: string | null;
   created_by: string;
+  created_at?: string | null;
 };
+// ...keep the component export as written
 
 type TaskModalProps = {
   isOpen: boolean;

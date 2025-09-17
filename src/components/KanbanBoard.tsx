@@ -1,7 +1,7 @@
 // src/components/KanbanBoard.tsx
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import TaskModal, { Task } from "./TaskModal";
+import TaskModal, { type Task } from "./TaskModal";
 import {
   DragDropContext,
   Droppable,
