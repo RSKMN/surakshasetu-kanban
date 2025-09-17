@@ -46,28 +46,20 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
         const { error } = await supabase
           .from("tasks")
           .update({ title, priority, status, description })
-          .eq("id", task.id)
-          .throwOnError();
+          .eq("id", task.id);
         if (error) throw error;
       } else {
-        // Get current user for owner stamp (RLS)
-        const { data: sessionData } = await supabase.auth.getSession().throwOnError();
+        // Get current user for RLS owner/created_by column
+        const { data: sessionData, error: sessErr } = await supabase.auth.getSession();
+        if (sessErr) throw sessErr;
         const owner = sessionData.session?.user?.id;
         if (!owner) throw new Error("Not authenticated");
 
-        // Option A: insert + select (requires SELECT policy)
-        // const { error } = await supabase
-        //   .from("tasks")
-        //   .insert({ title, priority, status, description, owner })
-        //   .select()
-        //   .throwOnError();
-
-        // Option B (safer while policies are being set up): avoid post-insert SELECT
+        // If you have a SELECT policy on tasks, you can chain .select() to return inserted row.
+        // If not, omit .select() to avoid RLS blocking.
         const { error } = await supabase
           .from("tasks")
-          .insert({ title, priority, status, description, owner }, { returning: "minimal" })
-          .throwOnError();
-
+          .insert({ title, priority, status, description, owner });
         if (error) throw error;
       }
       onClose();
@@ -82,7 +74,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
   async function handleDelete() {
     if (!task) return;
     try {
-      const { error } = await supabase.from("tasks").delete().eq("id", task.id).throwOnError();
+      const { error } = await supabase.from("tasks").delete().eq("id", task.id);
       if (error) throw error;
       onClose();
     } catch (e: any) {
@@ -91,7 +83,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
     }
   }
 
-  // Dark-friendly select styling, including options
+  // Dark-friendly select styling including options
   const selectClass =
     "w-full rounded-lg bg-slate-900 text-slate-100 border border-white/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-300 " +
     "[&>option]:bg-slate-900 [&>option]:text-slate-100";
