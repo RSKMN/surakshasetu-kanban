@@ -266,3 +266,29 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sa
 }
 /* Title/desc readable on light notes */
 .card-title, .card-desc { color: #0b132b; text-shadow: 0 1px 0 rgba(255,255,255,.35); }
+/* Create breathing room under prio/ribbon row */
+.card.square {
+  padding-top: 18px; /* was 10px */
+}
+
+/* Shift the decorative ink strip lower so it doesn't overlap the title */
+.card.note::before {
+  top: 26px; /* was 18px */
+  height: 32px;
+}
+
+/* Make title pop clearly on pastel backgrounds */
+.card-title {
+  color: #0b132b;
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 6px; /* add space before description */
+  text-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+
+/* Stronger contrast for description */
+.card-desc {
+  color: #16324a;
+  opacity: .98;
+}
