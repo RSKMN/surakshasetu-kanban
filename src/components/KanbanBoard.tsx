@@ -10,15 +10,12 @@ import {
 } from "@hello-pangea/dnd";
 
 type Status = "todo" | "in_progress" | "done";
-
 const STATUS: Status[] = ["todo", "in_progress", "done"];
 const LABEL: Record<Status, string> = {
   todo: "To Do",
   in_progress: "In Progress",
   done: "Completed",
 };
-
-// Single, global To Do color
 const TODO_COLOR = "#FFD166";
 
 export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
@@ -45,33 +42,23 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
 
   useEffect(() => {
     fetchTasks();
+
+    // React to CRUD events from TaskModal (works without Realtime)
+    const handler = () => fetchTasks();
+    window.addEventListener("tasks:refresh", handler);
+
+    // Realtime subscription (works if enabled for the tasks table)
     const channel = supabase
       .channel("public:tasks")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "tasks" },
-        (payload) => {
-          setTasks((prev) => {
-            if (payload.eventType === "INSERT") {
-              const row = payload.new as Task;
-              if (!prev.find((t) => t.id === row.id)) return [...prev, row];
-              return prev;
-            }
-            if (payload.eventType === "UPDATE") {
-              const row = payload.new as Task;
-              return prev.map((t) => (t.id === row.id ? row : t));
-            }
-            if (payload.eventType === "DELETE") {
-              const row = payload.old as Task;
-              return prev.filter((t) => t.id !== row.id);
-            }
-            return prev;
-          });
-        }
+        () => fetchTasks()
       )
       .subscribe();
 
     return () => {
+      window.removeEventListener("tasks:refresh", handler);
       supabase.removeChannel(channel);
     };
   }, []);
@@ -132,9 +119,8 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
     const toCol = destination.droppableId as Status;
     if (!STATUS.includes(fromCol) || !STATUS.includes(toCol)) return;
 
-    const currentColumns = columns;
-    const fromArr = [...currentColumns[fromCol]];
-    const toArr = fromCol === toCol ? fromArr : [...currentColumns[toCol]];
+    const fromArr = [...columns[fromCol]];
+    const toArr = fromCol === toCol ? fromArr : [...columns[toCol]];
 
     let newColor: string | undefined;
     if (toCol === "todo") newColor = TODO_COLOR;
@@ -150,7 +136,7 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
     );
 
     const nextColumns = {
-      ...currentColumns,
+      ...columns,
       [fromCol]: fromCol === toCol ? toArr : fromArr,
       [toCol]: toArr,
     };
@@ -158,13 +144,12 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
     const untouched = tasks.filter(
       (t) => t.status !== fromCol && t.status !== toCol
     );
-    const updated = [
+    setTasks([
       ...untouched,
       ...nextColumns.todo,
       ...nextColumns.in_progress,
       ...nextColumns.done,
-    ];
-    setTasks(updated);
+    ]);
 
     await persistTaskPatch(draggableId, {
       status: toCol,
@@ -175,47 +160,45 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
   };
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div className="kanban">
+      <div className="kanban-header">
         <h2>Team Board</h2>
-        <button onClick={openNew} style={{ padding: "6px 12px" }}>New Task</button>
+        <button onClick={openNew} className="btn btn-primary">
+          New Task
+        </button>
       </div>
 
       {loading ? (
-        <div>Loading...</div>
+        <div className="muted">Loading…</div>
       ) : (
         <DragDropContext onDragEnd={onDragEnd}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          <div className="columns">
             {STATUS.map((col) => (
               <Droppable droppableId={col} key={col}>
                 {(provided) => (
                   <div
+                    className="column"
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    style={{ background: "#0b132b", borderRadius: 8, padding: 12, minHeight: 300 }}
                   >
-                    <h3 style={{ marginTop: 0 }}>{LABEL[col]}</h3>
+                    <h3 className="col-title">{LABEL[col]}</h3>
                     {columns[col].map((t, idx) => (
                       <Draggable draggableId={t.id} index={idx} key={t.id}>
                         {(drag) => (
                           <div
+                            className="card"
+                            onClick={() => openEdit(t)}
                             ref={drag.innerRef}
                             {...drag.draggableProps}
                             {...drag.dragHandleProps}
-                            onClick={() => openEdit(t)}
                             style={{
-                              background: "#1c2541",
-                              color: "white",
                               borderLeft: `8px solid ${t.sticky_color ?? "#415a77"}`,
-                              borderRadius: 6,
-                              padding: 10,
-                              marginBottom: 10,
                               ...drag.draggableProps.style,
                             }}
                           >
-                            <div style={{ fontWeight: 600 }}>{t.title}</div>
+                            <div className="card-title">{t.title}</div>
                             {t.description ? (
-                              <div style={{ opacity: 0.85, marginTop: 4 }}>{t.description}</div>
+                              <div className="card-desc">{t.description}</div>
                             ) : null}
                           </div>
                         )}

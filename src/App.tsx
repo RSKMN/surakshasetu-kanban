@@ -26,14 +26,18 @@ export default function App() {
     })();
   }, []);
 
-  if (!ready) return <div style={{ padding: 16 }}>Loading…</div>;
+  if (!ready) return <div className="page-pad">Loading…</div>;
 
   return (
-    <div style={{ padding: 16 }}>
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
-        {email ? <span>Signed in as {email}</span> : <span>Not signed in</span>}
-        {email ? <SignOutButton /> : <SignInWithGoogleButton />}
-      </div>
+    <div className="page-pad">
+      <header className="topbar">
+        <div className="brand">SurakshaSetu Kanban</div>
+        <div className="auth">
+          {email ? <span className="muted">Signed in as {email}</span> : <span className="muted">Guest</span>}
+          {email ? <SignOutButton /> : <SignInWithGoogleButton />}
+        </div>
+      </header>
+
       <KanbanBoard stickyColor={userColor} />
     </div>
   );

@@ -75,6 +75,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
         const { error } = await supabase.from("tasks").insert([createRow]);
         if (error) throw error;
       }
+      window.dispatchEvent(new CustomEvent("tasks:refresh"));
       close();
     } catch (e: any) {
       alert(e?.message || String(e));
@@ -87,45 +88,37 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
     if (!task?.id) return;
     const { error } = await supabase.from("tasks").delete().eq("id", task.id);
     if (error) alert(error.message);
+    window.dispatchEvent(new CustomEvent("tasks:refresh"));
     close();
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.4)",
-        display: "grid",
-        placeItems: "center",
-        zIndex: 1000,
-      }}
-    >
-      <div style={{ width: 420, background: "#0b132b", color: "white", borderRadius: 8, padding: 16 }}>
-        <h3 style={{ marginTop: 0 }}>{task ? "Edit Task" : "New Task"}</h3>
+    <div className="modal">
+      <div className="modal-card">
+        <h3 className="modal-title">{task ? "Edit Task" : "New Task"}</h3>
 
-        <label>Title</label>
+        <label className="label">Title</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Task title"
-          style={{ width: "100%", padding: 8, marginBottom: 10 }}
+          className="input"
         />
 
-        <label>Description</label>
+        <label className="label">Description</label>
         <textarea
           value={description ?? ""}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
           placeholder="Optional details"
-          style={{ width: "100%", padding: 8, marginBottom: 10 }}
+          className="textarea"
         />
 
-        <label>Priority</label>
+        <label className="label">Priority</label>
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value as any)}
-          style={{ width: "100%", padding: 8, marginBottom: 10 }}
+          className="select"
         >
           <option>Low</option>
           <option>Medium</option>
@@ -134,11 +127,11 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
 
         {task ? (
           <>
-            <label>Status</label>
+            <label className="label">Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as any)}
-              style={{ width: "100%", padding: 8, marginBottom: 10 }}
+              className="select"
             >
               <option value="todo">To Do</option>
               <option value="in_progress">In Progress</option>
@@ -147,12 +140,12 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
           </>
         ) : null}
 
-        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+        <div className="actions">
           {task?.id ? (
-            <button onClick={handleDelete} style={{ padding: "6px 10px" }}>Delete</button>
+            <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
           ) : null}
-          <button onClick={close} style={{ padding: "6px 10px" }}>Cancel</button>
-          <button onClick={handleSave} style={{ padding: "6px 10px" }}>
+          <button className="btn" onClick={close}>Cancel</button>
+          <button className="btn btn-primary" onClick={handleSave}>
             {saving ? "Saving..." : task ? "Save" : "Create"}
           </button>
         </div>
