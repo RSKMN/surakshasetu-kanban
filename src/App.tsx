@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
 import { SignInWithGoogleButton, SignOutButton } from "./components/AuthButtons";
 import KanbanBoard from "./components/KanbanBoard";
@@ -9,19 +9,28 @@ function Intro() {
     <div className="intro-hero">
       <div className="intro-card">
         <h1 className="intro-title">Welcome, Collaborator</h1>
-        <p className="intro-sub">Thank you for teaming up on <span className="brand">SurakshaSetu</span> Mobile App</p>
-        <p className="intro-desc">Plan, prioritize, and deliver with a delightful Kanban experience crafted for civic impact.</p>
-        <div className="intro-actions"><SignInWithGoogleButton /></div>
+        <p className="intro-sub">
+          Thank you for teaming up on <span className="brand">SurakshaSetu</span> Mobile App
+        </p>
+        <p className="intro-desc">
+          Plan, prioritize, and deliver with a delightful Kanban experience crafted for civic impact.
+        </p>
+        <div className="intro-actions">
+          <SignInWithGoogleButton />
+        </div>
       </div>
     </div>
   );
 }
 
+const DEFAULT_USER_COLOR = "#06D6A0"; // not shown in the palette
+const PALETTE = ["#FF6B6B", "#FFD166", "#4CC9F0", "#F72585", "#F4A261", "#43AA8B", "#F77F00"]; // curated
+
 export default function App() {
   const [ready, setReady] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
-  const [userColor, setUserColor] = useState("#06D6A0");
+  const [userColor, setUserColor] = useState(DEFAULT_USER_COLOR);
   const [theme, setTheme] = useState<"dark" | "light">(
     (localStorage.getItem("theme") as "dark" | "light") || "dark"
   );
@@ -49,13 +58,28 @@ export default function App() {
     })();
   }, []);
 
-  async function handleColorChange(newColor: string) {
+  const paletteToShow = useMemo(
+    () => PALETTE.filter((c) => c.toLowerCase() !== DEFAULT_USER_COLOR.toLowerCase()),
+    []
+  );
+
+  async function chooseColor(color: string) {
     if (!uid) return;
-    setUserColor(newColor);
-    await supabase.from("profiles").update({ color: newColor }).eq("id", uid);
+    // Ensure uniqueness: check if another profile already uses this color
+    const { data: clash } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("color", color)
+      .neq("id", uid);
+    if (clash && clash.length > 0) {
+      alert("Color already taken by another collaborator. Please pick a different one.");
+      return;
+    }
+    setUserColor(color);
+    await supabase.from("profiles").update({ color }).eq("id", uid);
     await supabase
       .from("tasks")
-      .update({ sticky_color: newColor })
+      .update({ sticky_color: color })
       .eq("assigned_to", uid)
       .neq("status", "todo");
     window.dispatchEvent(new CustomEvent("tasks:refresh"));
@@ -67,25 +91,35 @@ export default function App() {
   return (
     <div className="page-pad">
       <header className="topbar">
-        <div className="brand">SurakshaSetu Kanban</div>
-        <div className="toolbar">
+        <div className="left">
           <span className="chip">Sprint 2</span>
-          <label className="picker">
-            Color:
+          <div className="brand">SurakshaSetu Kanban</div>
+        </div>
+
+        <div className="toolbar">
+          <div className="palette" title="Choose a unique color">
+            {paletteToShow.map((c) => (
+              <button
+                key={c}
+                className={`swatch${userColor === c ? " selected" : ""}`}
+                style={{ background: c }}
+                onClick={() => chooseColor(c)}
+                aria-label={`Pick ${c}`}
+              />
+            ))}
+          </div>
+
+          <label className="switch" title="Toggle theme">
             <input
-              type="color"
-              value={userColor}
-              onChange={(e) => handleColorChange(e.target.value)}
-              aria-label="Choose my color"
+              type="checkbox"
+              checked={theme === "light"}
+              onChange={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
             />
+            <span className="slider" />
+            <span className="icon sun">☀️</span>
+            <span className="icon moon">🌙</span>
           </label>
-          <button
-            className="btn"
-            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? "Light" : "Dark"} mode
-          </button>
+
           <span className="muted">Signed in as {email}</span>
           <SignOutButton />
         </div>

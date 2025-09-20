@@ -47,19 +47,12 @@ export default function KanbanBoard({
   useEffect(() => {
     fetchProfiles();
     fetchTasks();
-
     const handler = () => { fetchTasks(); fetchProfiles(); };
     window.addEventListener("tasks:refresh", handler);
-
     const channel = supabase
       .channel("public:tasks")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "tasks" },
-        () => handler()
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, () => handler())
       .subscribe();
-
     return () => {
       window.removeEventListener("tasks:refresh", handler);
       supabase.removeChannel(channel);
@@ -115,27 +108,16 @@ export default function KanbanBoard({
 
     let newColor: string | undefined;
     let newAssignee: string | null | undefined = undefined;
-
     if (toCol === "todo") { newColor = TODO_COLOR; newAssignee = null; }
     if (toCol === "in_progress") { newColor = stickyColor; newAssignee = currentUserId; }
-    // done keeps current color/assignee
 
     const moved = localMove(fromArr, toArr, source.index, destination.index, toCol, newColor, newAssignee);
 
-    const nextColumns = {
-      ...columns,
-      [fromCol]: fromCol === toCol ? toArr : fromArr,
-      [toCol]: toArr,
-    };
-
+    const nextColumns = { ...columns, [fromCol]: fromCol === toCol ? toArr : fromArr, [toCol]: toArr };
     const untouched = tasks.filter((t) => t.status !== fromCol && t.status !== toCol);
     setTasks([ ...untouched, ...nextColumns.todo, ...nextColumns.in_progress, ...nextColumns.done ]);
 
-    await persistTaskPatch(draggableId, {
-      status: toCol,
-      sticky_color: moved.sticky_color,
-      assigned_to: moved.assigned_to ?? null,
-    });
+    await persistTaskPatch(draggableId, { status: toCol, sticky_color: moved.sticky_color, assigned_to: moved.assigned_to ?? null });
     await persistPositions(nextColumns[fromCol]);
     if (fromCol !== toCol) await persistPositions(nextColumns[toCol]);
     window.dispatchEvent(new CustomEvent("tasks:refresh"));
@@ -150,7 +132,7 @@ export default function KanbanBoard({
   return (
     <div className="kanban">
       <div className="kanban-header">
-        <h2>Team Board <span className="chip">Sprint 2</span></h2>
+        <h2>Team Board</h2>
         <button onClick={openNew} className="btn btn-primary">New Task</button>
       </div>
 
@@ -168,15 +150,12 @@ export default function KanbanBoard({
                       <Draggable draggableId={t.id} index={idx} key={t.id}>
                         {(drag) => (
                           <div
-                            className={`card note note-${col}`}
+                            className={`card note note-${col} square`}
                             onClick={() => openEdit(t)}
                             ref={drag.innerRef}
                             {...drag.draggableProps}
                             {...drag.dragHandleProps}
-                            style={{
-                              background: t.sticky_color ?? "#ffd",
-                              ...drag.draggableProps.style,
-                            }}
+                            style={{ background: t.sticky_color ?? "#ffd", ...drag.draggableProps.style }}
                           >
                             <div className="note-tape" />
                             <div className="card-title">{t.title}</div>
