@@ -224,7 +224,7 @@ export default function KanbanBoard({
                         <Draggable draggableId={t.id} index={idx} key={t.id}>
                           {(drag) => (
                             <div
-                              className={`card note note-${col} square`}
+                              className={`card note square note-${col}`}
                               onClick={() => openEdit(t)}
                               ref={drag.innerRef}
                               {...drag.draggableProps}

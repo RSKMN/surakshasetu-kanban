@@ -100,3 +100,46 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sa
 .column { padding: 10px; }
 .card { margin: 0; }
 .note .note-tape { width: 52px; height: 14px; top: -7px; }
+
+/* Use full width, let columns breathe */
+.kanban { max-width: 1440px; margin: 0 auto; padding-inline: 8px; }
+.columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+
+/* Items grid: auto-fill more notes per row inside each column */
+.items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+/* Compact, square notes with tighter padding */
+.card.square { aspect-ratio: 1 / 1; padding: 8px 8px 6px 8px; }
+.card-title { font-weight: 800; margin-bottom: 4px; font-size: 14px; line-height: 1.15; }
+.card-desc { font-size: 12px; line-height: 1.25; margin-bottom: 8px; opacity: .95; }
+.card-meta { font-size: 11px; }
+
+/* Smaller tape and lighter shadow for density */
+.note .note-tape { width: 46px; height: 12px; top: -6px; }
+
+/* Priority chip: smaller, tucked top-right */
+.prio {
+  position: absolute; top: 6px; right: 6px;
+  padding: 2px 6px; border-radius: 6px;
+  font-weight: 800; font-size: 10px;
+  box-shadow: 0 2px 4px var(--note-shadow);
+}
+.prio-low { background: #8bd3dd; color: #0b132b; }
+.prio-medium { background: #ffd166; color: #0b132b; }
+.prio-high { background: #ef476f; color: #fff; }
+
+/* Column panel tightening */
+.column { padding: 10px; border-radius: 12px; }
+.col-title { margin: 2px 0 8px 2px; }
+
+/* Responsive: allow even denser packing on large screens */
+@media (min-width: 1200px) {
+  .items { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+}
+@media (max-width: 700px) {
+  .columns { grid-template-columns: 1fr; }
+}
