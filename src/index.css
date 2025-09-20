@@ -1,355 +1,121 @@
+/* ============ Theme ============ */
 :root{
-  --bg:#0a0f1f; --panel:#0b132b; --card:#1c2541; --text:#e6eefc; --muted:#9fb0c6;
-  --brand-1:#00d4ff; --brand-2:#7c4dff; --danger:#ef476f; --tape:#f7f1d1; --note-shadow:rgba(0,0,0,.28);
+--bg:#0a0f1f; --panel:#0b132b; --card:#1c2541; --text:#e6eefc; --muted:#9fb0c6;
+--brand-1:#00d4ff; --brand-2:#7c4dff; --danger:#ef476f; --tape:#f7f1d1;
+--note-shadow:rgba(0,0,0,.28);
 }
 [data-theme="light"]{
-  --bg:#f5f7fb; --panel:#ffffff; --card:#fffbe6; --text:#0b132b; --muted:#4a5a75;
-  --brand-1:#5b8cff; --brand-2:#7c4dff; --danger:#d7263d; --note-shadow:rgba(0,0,0,.12);
-}
-*{box-sizing:border-box} html,body,#root{height:100%}
-body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-.page-pad{padding:16px}
-
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid #1d2746;padding-bottom:8px}
-.topbar .left{display:flex;align-items:center;gap:10px}
-.brand{font-weight:800}
-.chip{background:#1d2746;color:#d9e6ff;border-radius:8px;padding:4px 8px;font-size:12px}
-.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.muted{color:var(--muted)}
-.btn{background:#243b55;color:#fff;border:0;border-radius:10px;padding:8px 14px;cursor:pointer}
-.btn:hover{filter:brightness(1.07)}
-.btn-primary{background:linear-gradient(135deg,var(--brand-1),var(--brand-2))}
-.btn-danger{background:var(--danger)}
-
-.palette{display:flex;gap:8px;align-items:center}
-.swatch{width:26px;height:26px;border-radius:6px;border:2px solid rgba(255,255,255,.35);cursor:pointer;box-shadow:0 2px 6px var(--note-shadow)}
-.swatch.selected{outline:2px solid #fff; outline-offset:2px}
-
-.switch{position:relative;width:56px;height:28px;display:inline-grid;place-items:center}
-.switch input{appearance:none;width:100%;height:100%;margin:0;position:absolute;inset:0;cursor:pointer;opacity:0}
-.switch .slider{position:absolute;inset:0;background:#243b55;border-radius:999px;transition:.2s ease}
-.switch .slider::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s ease}
-.switch input:checked + .slider{background:#ffd166}
-.switch input:checked + .slider::after{transform:translateX(28px)}
-.switch .icon{position:absolute;font-size:14px;pointer-events:none}
-.switch .sun{left:8px} .switch .moon{right:8px}
-
-.kanban{max-width:1200px;margin:0 auto;display:grid;gap:12px}
-.kanban-header{display:flex;justify-content:space-between;align-items:center}
-.columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.column{background:var(--panel);border-radius:12px;padding:12px;min-height:60vh;border:1px solid #19254a}
-.col-title{margin:4px 0 12px 0}
-
-.card{position:relative;border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 10px 18px var(--note-shadow);transition:transform .12s ease,box-shadow .12s ease}
-.card:hover{transform:translateY(-2px);box-shadow:0 12px 22px var(--note-shadow)}
-.square{aspect-ratio:1/1;display:grid;grid-template-rows:auto 1fr auto;overflow-wrap:anywhere}
-.card-title{font-weight:800;margin-bottom:6px}
-.card-desc{opacity:.92;margin-bottom:10px}
-.card-meta{display:flex;justify-content:space-between;align-items:center;font-size:12px}
-.assignee{background:rgba(0,0,0,.08);padding:3px 8px;border-radius:999px}
-.status-pill{padding:3px 8px;border-radius:999px;color:#0b132b;background:#ffe}
-.status-pill.in_progress{background:#ffe7b8}
-.status-pill.done{background:#c5ffd9}
-.note .note-tape{content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%) rotate(-2deg);width:68px;height:16px;background:var(--tape);opacity:.85;box-shadow:0 2px 4px rgba(0,0,0,.15)}
-
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:1000}
-.modal-card{width:460px;max-width:calc(100% - 24px);background:var(--panel);border:1px solid #1d2746;color:var(--text);border-radius:12px;padding:16px}
-.modal-title{margin:0 0 10px 0}
-.label{display:block;margin:10px 0 6px 0;color:var(--muted)}
-.input,.textarea,.select{width:100%;border:1px solid #1d2746;background:#0f1630;color:var(--text);border-radius:8px;padding:8px 10px}
-[data-theme="light"] .input,[data-theme="light"] .textarea,[data-theme="light"] .select{background:#fff}
-.textarea{resize:vertical}
-.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-
-.intro-hero{min-height:100vh;display:grid;place-items:center;padding:24px}
-.intro-card{max-width:720px;width:100%;background:var(--panel);border:1px solid #1d2746;border-radius:16px;padding:28px;text-align:center;box-shadow:0 12px 40px var(--note-shadow)}
-.intro-title{margin:0 0 8px 0;font-size:40px}
-.intro-sub{margin:0;font-size:18px;color:var(--muted)}
-.intro-desc{margin:14px 0 22px 0}
-.intro-actions{display:flex;justify-content:center}
-
-/* Two-up grid inside each column */
-.items {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(140px, 1fr));
-  gap: 12px;
+--bg:#f5f7fb; --panel:#ffffff; --card:#fffbe6; --text:#0b132b; --muted:#4a5a75;
+--brand-1:#5b8cff; --brand-2:#7c4dff; --danger:#d7263d; --note-shadow:rgba(0,0,0,.12);
 }
 
-/* Smaller, square notes */
-.card.square {
-  aspect-ratio: 1 / 1;
-  padding: 10px 10px 8px 10px;
+/* ============ Base ============ */
+*{ box-sizing:border-box }
+html,body,#root{ height:100% }
+body{ margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--text) }
+.page-pad{ padding:16px }
+
+/* Buttons, chips, toolbar */
+.btn{ background:#243b55; color:#fff; border:0; border-radius:10px; padding:8px 14px; cursor:pointer }
+.btn:hover{ filter:brightness(1.07) }
+.btn-primary{ background:linear-gradient(135deg,var(--brand-1),var(--brand-2)) }
+.btn-danger{ background:var(--danger) }
+.muted{ color:var(--muted) }
+.chip{ background:#1d2746; color:#d9e6ff; border-radius:8px; padding:4px 8px; font-size:12px }
+.brand{ font-weight:800 }
+.topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #1d2746; padding-bottom:8px }
+.topbar .left{ display:flex; align-items:center; gap:10px }
+.toolbar{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+
+/* Theme switch */
+.switch{ position:relative; width:56px; height:28px; display:inline-grid; place-items:center }
+.switch input{ appearance:none; width:100%; height:100%; margin:0; position:absolute; inset:0; cursor:pointer; opacity:0 }
+.switch .slider{ position:absolute; inset:0; background:#243b55; border-radius:999px; transition:.2s ease }
+.switch .slider::after{ content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; background:#fff; border-radius:50%; transition:.2s ease }
+.switch input:checked + .slider{ background:#ffd166 }
+.switch input:checked + .slider::after{ transform:translateX(28px) }
+.switch .icon{ position:absolute; font-size:14px; pointer-events:none }
+.switch .sun{ left:8px } .switch .moon{ right:8px }
+
+/* Palette */
+.palette{ display:flex; gap:8px; align-items:center }
+.swatch{ width:26px; height:26px; border-radius:6px; border:2px solid rgba(255,255,255,.35); cursor:pointer; box-shadow:0 2px 6px var(--note-shadow) }
+.swatch.selected{ outline:2px solid #fff; outline-offset:2px }
+
+/* ============ Board ============ */
+.kanban{ max-width:1560px; margin:0 auto; padding-inline:12px; display:grid; gap:12px }
+.kanban-header{ display:flex; justify-content:space-between; align-items:center }
+.columns{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px }
+.column{ background:var(--panel); border-radius:14px; padding:12px; min-height:60vh; border:1px solid #19254a }
+.col-title{ margin:2px 0 10px 2px; font-size:16px; letter-spacing:.2px }
+
+/* Grid of notes within a column */
+.items{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px }
+@media (min-width:1400px){ .items{ grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:14px } }
+@media (max-width:700px){ .columns{ grid-template-columns:1fr } }
+
+/* ============ Sticky Notes ============ */
+.card{ position:relative; border-radius:12px; padding:0; margin:0; box-shadow:0 12px 22px var(--note-shadow); transition:transform .12s ease, box-shadow .12s ease }
+.card:hover{ transform:translateY(-2px); box-shadow:0 16px 28px var(--note-shadow) }
+.card.square{ aspect-ratio:1/1; padding:16px 10px 8px 10px; display:grid; grid-template-rows:auto 1fr auto; overflow-wrap:anywhere }
+
+/* Tape + accent strip */
+.note .note-tape{ content:""; position:absolute; top:-6px; left:50%; transform:translateX(-50%) rotate(-2deg); width:46px; height:12px; background:var(--tape); opacity:.85; box-shadow:0 2px 4px rgba(0,0,0,.15) }
+.note-header{ position:absolute; top:6px; left:8px; right:8px; height:6px; background:rgba(255,255,255,.25); border-radius:4px }
+
+/* Overlay to help text legibility on bright colors */
+.card.note::before{
+content:""; position:absolute; left:0; right:0; top:26px; height:32px;
+background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,0));
+pointer-events:none; border-top-left-radius:12px; border-top-right-radius:12px; z-index:1;
+}
+.prio,.ribbon,.note-tape{ position:absolute; z-index:2 }
+
+/* Title & description (always readable) */
+.card-title,.card-desc{ color:#0b132b; text-shadow:0 1px 0 rgba(255,255,255,.35); position:relative; z-index:3 }
+.card-title{
+font-weight:900; font-size:14px; line-height:1.2; margin-bottom:6px;
+display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.card-desc{
+color:#22364d; font-weight:600; opacity:.95; font-size:12px; line-height:1.3; margin-bottom:8px;
+display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
 }
 
-/* Priority badge (top-right) */
-.prio {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-weight: 800;
-  font-size: 11px;
-  box-shadow: 0 2px 6px var(--note-shadow);
+/* Priority & status */
+.prio{ top:6px; left:8px; padding:2px 6px; border-radius:8px; font-weight:800; font-size:10px; box-shadow:0 2px 4px var(--note-shadow) }
+.prio-low{ background:#8bd3dd; color:#0b132b } .prio-medium{ background:#ffd166; color:#0b132b } .prio-high{ background:#ef476f; color:#fff }
+.ribbon{ top:6px; right:6px; font-size:10px; font-weight:800; padding:2px 7px; border-radius:8px; box-shadow:0 2px 4px var(--note-shadow); opacity:.95; background:#ffe; color:#0b132b }
+.ribbon.ribbon-in_progress{ background:#ffe7b8 } .ribbon.ribbon-done{ background:#c5ffd9 }
+
+/* Meta row: assignee + action */
+.card-meta{ display:flex; justify-content:space-between; align-items:center; margin-top:auto; font-size:11px }
+.assignee{
+background:rgba(0,0,0,.08); padding:3px 8px; border-radius:999px; min-width:96px; max-width:55%;
+text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-.prio-low { background: #8bd3dd; color: #0b132b; }
-.prio-medium { background: #ffd166; color: #0b132b; }
-.prio-high { background: #ef476f; color: #fff; }
-
-/* Tighter overall cards in a column */
-.column { padding: 10px; }
-.card { margin: 0; }
-.note .note-tape { width: 52px; height: 14px; top: -7px; }
-
-/* Use full width, let columns breathe */
-.kanban { max-width: 1440px; margin: 0 auto; padding-inline: 8px; }
-.columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-
-/* Items grid: auto-fill more notes per row inside each column */
-.items {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
+.actions-mini{ display:flex; gap:6px; align-items:center; margin-left:auto }
+.mini{
+font-size:11px; font-weight:800; border:0; cursor:pointer; padding:5px 8px; border-radius:10px;
+color:#0b132b; background:#ffe; box-shadow:0 2px 4px var(--note-shadow); white-space:nowrap;
 }
+.mini:hover{ filter:brightness(1.06) }
+.mini[disabled]{ background:#c5ffd9; color:#0b132b; opacity:1; cursor:default }
 
-/* Compact, square notes with tighter padding */
-.card.square { aspect-ratio: 1 / 1; padding: 8px 8px 6px 8px; }
-.card-title { font-weight: 800; margin-bottom: 4px; font-size: 14px; line-height: 1.15; }
-.card-desc { font-size: 12px; line-height: 1.25; margin-bottom: 8px; opacity: .95; }
-.card-meta { font-size: 11px; }
+/* ============ Modal & Forms ============ */
+.modal{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:grid; place-items:center; z-index:1000 }
+.modal-card{ width:460px; max-width:calc(100% - 24px); background:var(--panel); border:1px solid #1d2746; color:var(--text); border-radius:12px; padding:16px }
+.modal-title{ margin:0 0 10px 0 }
+.label{ display:block; margin:10px 0 6px 0; color:var(--muted) }
+.input,.textarea,.select{ width:100%; border:1px solid #1d2746; background:#0f1630; color:var(--text); border-radius:8px; padding:8px 10px }
+[data-theme="light"] .input,[data-theme="light"] .textarea,[data-theme="light"] .select{ background:#fff }
+.textarea{ resize:vertical }
+.actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px }
 
-/* Smaller tape and lighter shadow for density */
-.note .note-tape { width: 46px; height: 12px; top: -6px; }
-
-/* Priority chip: smaller, tucked top-right */
-.prio {
-  position: absolute; top: 6px; right: 6px;
-  padding: 2px 6px; border-radius: 6px;
-  font-weight: 800; font-size: 10px;
-  box-shadow: 0 2px 4px var(--note-shadow);
-}
-.prio-low { background: #8bd3dd; color: #0b132b; }
-.prio-medium { background: #ffd166; color: #0b132b; }
-.prio-high { background: #ef476f; color: #fff; }
-
-/* Column panel tightening */
-.column { padding: 10px; border-radius: 12px; }
-.col-title { margin: 2px 0 8px 2px; }
-
-/* Responsive: allow even denser packing on large screens */
-@media (min-width: 1200px) {
-  .items { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-}
-@media (max-width: 700px) {
-  .columns { grid-template-columns: 1fr; }
-}
-/* Replace round status badge with a compact ribbon */
-.ribbon {
-  position: absolute; top: 6px; right: 6px;
-  font-size: 10px; font-weight: 800;
-  background: #ffe; color: #0b132b;
-  padding: 3px 8px; border-radius: 6px;
-  box-shadow: 0 2px 4px var(--note-shadow);
-}
-.ribbon.in_progress, .ribbon.ribbon-in_progress { background: #ffe7b8; }
-.ribbon.done, .ribbon.ribbon-done { background: #c5ffd9; }
-
-/* Bottom-right mini action bar */
-.actions-mini { display: flex; gap: 6px; align-items: center; }
-.mini {
-  font-size: 10px; font-weight: 800; border: 0; cursor: pointer;
-  padding: 4px 6px; border-radius: 6px; color: #0b132b; background: #ffe;
-  box-shadow: 0 2px 4px var(--note-shadow);
-}
-.mini:hover { filter: brightness(1.05); }
-.mini:nth-child(2) { background: #ffe7b8; } /* In Progress color */
-.mini:nth-child(3) { background: #c5ffd9; } /* Done color */
-
-/* Tighten note content so actions fit neatly */
-.card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-top: auto; }
-.assignee { background: rgba(0,0,0,.08); padding: 3px 8px; border-radius: 999px; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* Wider canvas and balanced gutters */
-.kanban { max-width: 1560px; margin: 0 auto; padding-inline: 12px; }
-.columns { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-.column { padding: 12px; border-radius: 14px; }
-
-/* Denser items grid; more cards per row */
-.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-@media (min-width: 1400px) { .items { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; } }
-
-/* Sticky note polish */
-.card.square { aspect-ratio: 1 / 1; padding: 10px 10px 8px 10px; border-radius: 12px; }
-.card { box-shadow: 0 12px 22px var(--note-shadow); }
-.card:hover { transform: translateY(-2px); box-shadow: 0 16px 28px var(--note-shadow); }
-
-/* Subtle lined header across the top of each note */
-.note-header {
-  position: absolute; top: 6px; left: 8px; right: 8px; height: 6px;
-  background: rgba(255,255,255,.25); border-radius: 4px;
-}
-
-/* Smaller tape and accents */
-.note .note-tape { width: 46px; height: 12px; top: -6px; }
-
-/* Typography tuning */
-.card-title { font-weight: 800; margin-bottom: 4px; font-size: 13.5px; line-height: 1.15; }
-.card-desc { font-size: 12px; line-height: 1.3; margin-bottom: 8px; }
-.card-meta { font-size: 11px; }
-
-/* Status ribbon: slimmer, softer */
-.ribbon {
-  position: absolute; top: 6px; right: 6px;
-  font-size: 10px; font-weight: 800;
-  background: #ffe; color: #0b132b;
-  padding: 2px 7px; border-radius: 8px;
-  box-shadow: 0 2px 4px var(--note-shadow); opacity: .95;
-}
-.ribbon.ribbon-in_progress { background: #ffe7b8; }
-.ribbon.ribbon-done { background: #c5ffd9; }
-
-/* Priority chip: compact */
-.prio { position: absolute; top: 6px; left: 8px; padding: 2px 6px; border-radius: 8px; font-weight: 800; font-size: 10px; box-shadow: 0 2px 4px var(--note-shadow); }
-.prio-low { background: #8bd3dd; color: #0b132b; }
-.prio-medium { background: #ffd166; color: #0b132b; }
-.prio-high { background: #ef476f; color: #fff; }
-
-/* Bottom action bar: compact and aligned */
-.actions-mini { display: flex; gap: 6px; align-items: center; margin-left: auto; }
-.mini {
-  font-size: 10px; font-weight: 800; border: 0; cursor: pointer;
-  padding: 4px 6px; border-radius: 8px; color: #0b132b; background: #ffe;
-  box-shadow: 0 2px 4px var(--note-shadow);
-}
-.mini:hover { filter: brightness(1.06); }
-.mini:nth-child(1) { background: #ffe; }
-.mini:nth-child(2) { background: #ffe7b8; }
-.mini:nth-child(3) { background: #c5ffd9; }
-
-/* Assignee chip truncation */
-.assignee { background: rgba(0,0,0,.08); padding: 3px 8px; border-radius: 999px; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* Section headings more subtle to give notes focus */
-.col-title { margin: 2px 0 10px 2px; font-size: 16px; letter-spacing: .2px; }
-.mini[disabled] { background: #c5ffd9; color: #0b132b; opacity: 1; }
-/* Ensure text is readable on bright sticky colors */
-.card-title, .card-desc { color: #0b132b; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
-
-/* Stronger title and multi-line clamp */
-.card-title {
-  font-weight: 900; margin-bottom: 4px; font-size: 14px; line-height: 1.2;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-
-/* Description with better contrast and clamp */
-.card-desc {
-  opacity: .95; color: #18324b; /* darker for contrast */
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}
-
-/* Subtle ink strip behind title/desc top area */
-.card.note::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 18px; height: 36px;
-  background: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0));
-  pointer-events: none; border-top-left-radius: 12px; border-top-right-radius: 12px;
-}
-
-/* Keep ribbons and prio above the ink strip */
-.prio, .ribbon, .note-tape { position: absolute; z-index: 2; }
-.card.note::before { z-index: 1; }
-/* Decorative overlay under text */
-.card.note::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 18px; height: 36px;
-  background: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0));
-  pointer-events: none; border-top-left-radius: 12px; border-top-right-radius: 12px;
-  z-index: 1;
-}
-/* Title/desc readable on light notes */
-.card-title, .card-desc { color: #0b132b; text-shadow: 0 1px 0 rgba(255,255,255,.35); }
-/* Create breathing room under prio/ribbon row */
-.card.square {
-  padding-top: 18px; /* was 10px */
-}
-
-/* Shift the decorative ink strip lower so it doesn't overlap the title */
-.card.note::before {
-  top: 26px; /* was 18px */
-  height: 32px;
-}
-
-/* Make title pop clearly on pastel backgrounds */
-.card-title {
-  color: #0b132b;
-  font-weight: 900;
-  font-size: 14px;
-  line-height: 1.2;
-  margin-bottom: 6px; /* add space before description */
-  text-shadow: 0 1px 0 rgba(255,255,255,.35);
-}
-
-/* Stronger contrast for description */
-.card-desc {
-  color: #16324a;
-  opacity: .98;
-}
-/* Tighter gap between badges and title */
-.card.square { padding-top: 16px; }
-
-/* Title weight and baseline */
-.card-title { font-size: 14px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
-
-/* Description visibility on bright notes */
-.card-desc { color: #22364d; font-weight: 600; opacity: .95; }
-.assignee { min-width: 96px; text-align: center; }
-
-/* === SurakshaSetu Kanban final overrides (place at end of file) === */
-
-/* Canvas and columns */
-.kanban { max-width: 1560px; margin: 0 auto; padding-inline: 12px; }
-.columns { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 20px; }
-.column { padding: 12px; border-radius: 14px; }
-
-/* Items grid inside each column */
-.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-@media (min-width: 1400px){ .items { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; } }
-@media (max-width: 700px){ .columns { grid-template-columns: 1fr; } }
-
-/* Sticky note card */
-.card { margin: 0; box-shadow: 0 12px 22px var(--note-shadow); transition: transform .12s ease, box-shadow .12s ease; }
-.card:hover { transform: translateY(-2px); box-shadow: 0 16px 28px var(--note-shadow); }
-.card.square { aspect-ratio: 1/1; padding: 16px 10px 8px 10px; border-radius: 12px; }
-
-/* Tape and header accent */
-.note .note-tape { width: 46px; height: 12px; top: -6px; }
-.note-header { position: absolute; top: 6px; left: 8px; right: 8px; height: 6px; background: rgba(255,255,255,.25); border-radius: 4px; }
-
-/* Title and description */
-.card.note::before { content:""; position:absolute; left:0; right:0; top:26px; height:32px;
-  background: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0)); pointer-events:none;
-  border-top-left-radius:12px; border-top-right-radius:12px; z-index:1; }
-.prio, .ribbon, .note-tape { position:absolute; z-index:2; }
-
-.card-title, .card-desc { color:#0b132b; text-shadow:0 1px 0 rgba(255,255,255,.35); position:relative; z-index:3; }
-.card-title { font-weight:900; font-size:14px; line-height:1.2; margin-bottom:6px;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.card-desc { color:#22364d; font-weight:600; opacity:.95; font-size:12px; line-height:1.3; margin-bottom:8px;
-  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-
-/* Priority chip and status ribbon */
-.prio { top:6px; left:8px; padding:2px 6px; border-radius:8px; font-weight:800; font-size:10px; box-shadow:0 2px 4px var(--note-shadow); }
-.prio-low{background:#8bd3dd;color:#0b132b;} .prio-medium{background:#ffd166;color:#0b132b;} .prio-high{background:#ef476f;color:#fff;}
-.ribbon { top:6px; right:6px; font-size:10px; font-weight:800; padding:2px 7px; border-radius:8px; box-shadow:0 2px 4px var(--note-shadow); opacity:.95;
-  background:#ffe; color:#0b132b; }
-.ribbon.ribbon-in_progress{background:#ffe7b8;} .ribbon.ribbon-done{background:#c5ffd9;}
-
-/* Bottom meta row */
-.card-meta { display:flex; justify-content:space-between; align-items:center; margin-top:auto; font-size:11px; }
-.assignee { background:rgba(0,0,0,.08); padding:3px 8px; border-radius:999px; min-width:96px; max-width:55%; text-align:center;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-
-/* Single next-step action button */
-.actions-mini { display:flex; gap:6px; align-items:center; margin-left:auto; }
-.mini { font-size:11px; font-weight:800; border:0; cursor:pointer; padding:5px 8px; border-radius:10px; color:#0b132b; background:#ffe;
-  box-shadow:0 2px 4px var(--note-shadow); white-space:nowrap; }
-.mini:hover{ filter:brightness(1.06); }
-.mini[disabled]{ background:#c5ffd9; color:#0b132b; opacity:1; cursor:default; }
+/* ============ Intro ============ */
+.intro-hero{ min-height:100vh; display:grid; place-items:center; padding:24px }
+.intro-card{ max-width:720px; width:100%; background:var(--panel); border:1px solid #1d2746; border-radius:16px; padding:28px; text-align:center; box-shadow:0 12px 40px var(--note-shadow) }
+.intro-title{ margin:0 0 8px 0; font-size:40px }
+.intro-sub{ margin:0; font-size:18px; color:var(--muted) }
+.intro-desc{ margin:14px 0 22px 0 }
+.intro-actions{ display:flex; justify-content:center }
