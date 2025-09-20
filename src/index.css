@@ -257,3 +257,12 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sa
 /* Keep ribbons and prio above the ink strip */
 .prio, .ribbon, .note-tape { position: absolute; z-index: 2; }
 .card.note::before { z-index: 1; }
+/* Decorative overlay under text */
+.card.note::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 18px; height: 36px;
+  background: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0));
+  pointer-events: none; border-top-left-radius: 12px; border-top-right-radius: 12px;
+  z-index: 1;
+}
+/* Title/desc readable on light notes */
+.card-title, .card-desc { color: #0b132b; text-shadow: 0 1px 0 rgba(255,255,255,.35); }
