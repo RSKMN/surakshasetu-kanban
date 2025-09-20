@@ -232,3 +232,28 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sa
 /* Section headings more subtle to give notes focus */
 .col-title { margin: 2px 0 10px 2px; font-size: 16px; letter-spacing: .2px; }
 .mini[disabled] { background: #c5ffd9; color: #0b132b; opacity: 1; }
+/* Ensure text is readable on bright sticky colors */
+.card-title, .card-desc { color: #0b132b; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
+
+/* Stronger title and multi-line clamp */
+.card-title {
+  font-weight: 900; margin-bottom: 4px; font-size: 14px; line-height: 1.2;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Description with better contrast and clamp */
+.card-desc {
+  opacity: .95; color: #18324b; /* darker for contrast */
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Subtle ink strip behind title/desc top area */
+.card.note::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 18px; height: 36px;
+  background: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0));
+  pointer-events: none; border-top-left-radius: 12px; border-top-right-radius: 12px;
+}
+
+/* Keep ribbons and prio above the ink strip */
+.prio, .ribbon, .note-tape { position: absolute; z-index: 2; }
+.card.note::before { z-index: 1; }
