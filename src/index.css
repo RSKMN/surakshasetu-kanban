@@ -301,3 +301,55 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sa
 /* Description visibility on bright notes */
 .card-desc { color: #22364d; font-weight: 600; opacity: .95; }
 .assignee { min-width: 96px; text-align: center; }
+
+/* === SurakshaSetu Kanban final overrides (place at end of file) === */
+
+/* Canvas and columns */
+.kanban { max-width: 1560px; margin: 0 auto; padding-inline: 12px; }
+.columns { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 20px; }
+.column { padding: 12px; border-radius: 14px; }
+
+/* Items grid inside each column */
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+@media (min-width: 1400px){ .items { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; } }
+@media (max-width: 700px){ .columns { grid-template-columns: 1fr; } }
+
+/* Sticky note card */
+.card { margin: 0; box-shadow: 0 12px 22px var(--note-shadow); transition: transform .12s ease, box-shadow .12s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 16px 28px var(--note-shadow); }
+.card.square { aspect-ratio: 1/1; padding: 16px 10px 8px 10px; border-radius: 12px; }
+
+/* Tape and header accent */
+.note .note-tape { width: 46px; height: 12px; top: -6px; }
+.note-header { position: absolute; top: 6px; left: 8px; right: 8px; height: 6px; background: rgba(255,255,255,.25); border-radius: 4px; }
+
+/* Title and description */
+.card.note::before { content:""; position:absolute; left:0; right:0; top:26px; height:32px;
+  background: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0)); pointer-events:none;
+  border-top-left-radius:12px; border-top-right-radius:12px; z-index:1; }
+.prio, .ribbon, .note-tape { position:absolute; z-index:2; }
+
+.card-title, .card-desc { color:#0b132b; text-shadow:0 1px 0 rgba(255,255,255,.35); position:relative; z-index:3; }
+.card-title { font-weight:900; font-size:14px; line-height:1.2; margin-bottom:6px;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.card-desc { color:#22364d; font-weight:600; opacity:.95; font-size:12px; line-height:1.3; margin-bottom:8px;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+
+/* Priority chip and status ribbon */
+.prio { top:6px; left:8px; padding:2px 6px; border-radius:8px; font-weight:800; font-size:10px; box-shadow:0 2px 4px var(--note-shadow); }
+.prio-low{background:#8bd3dd;color:#0b132b;} .prio-medium{background:#ffd166;color:#0b132b;} .prio-high{background:#ef476f;color:#fff;}
+.ribbon { top:6px; right:6px; font-size:10px; font-weight:800; padding:2px 7px; border-radius:8px; box-shadow:0 2px 4px var(--note-shadow); opacity:.95;
+  background:#ffe; color:#0b132b; }
+.ribbon.ribbon-in_progress{background:#ffe7b8;} .ribbon.ribbon-done{background:#c5ffd9;}
+
+/* Bottom meta row */
+.card-meta { display:flex; justify-content:space-between; align-items:center; margin-top:auto; font-size:11px; }
+.assignee { background:rgba(0,0,0,.08); padding:3px 8px; border-radius:999px; min-width:96px; max-width:55%; text-align:center;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* Single next-step action button */
+.actions-mini { display:flex; gap:6px; align-items:center; margin-left:auto; }
+.mini { font-size:11px; font-weight:800; border:0; cursor:pointer; padding:5px 8px; border-radius:10px; color:#0b132b; background:#ffe;
+  box-shadow:0 2px 4px var(--note-shadow); white-space:nowrap; }
+.mini:hover{ filter:brightness(1.06); }
+.mini[disabled]{ background:#c5ffd9; color:#0b132b; opacity:1; cursor:default; }
