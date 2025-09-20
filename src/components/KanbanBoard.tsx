@@ -45,7 +45,7 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
 
   useEffect(() => {
     fetchTasks();
-    // Realtime: listen to all task changes (no owner filter)
+    // Realtime: listen to all task changes
     const channel = supabase
       .channel("public:tasks")
       .on(
@@ -78,11 +78,7 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
   }, []);
 
   const columns = useMemo(() => {
-    const by: Record<Status, Task[]> = {
-      todo: [],
-      in_progress: [],
-      done: [],
-    };
+    const by: Record<Status, Task[]> = { todo: [], in_progress: [], done: [] };
     for (const t of tasks) by[t.status]?.push(t);
     return by;
   }, [tasks]);
@@ -102,7 +98,8 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
     if (error) console.error("persistTaskPatch error", error);
   }
 
-  async function persistPositions(status: Status, items: Task[]) {
+  // Removed the unused 'status' parameter to fix TS6133
+  async function persistPositions(items: Task[]) {
     const updates = items.map((t, idx) => ({ id: t.id, position: idx }));
     const { error } = await supabase.from("tasks").upsert(updates, {
       onConflict: "id",
@@ -175,8 +172,8 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
       status: toCol,
       sticky_color: moved.sticky_color,
     });
-    await persistPositions(fromCol, nextColumns[fromCol]);
-    if (fromCol !== toCol) await persistPositions(toCol, nextColumns[toCol]);
+    await persistPositions(nextColumns[fromCol]);
+    if (fromCol !== toCol) await persistPositions(nextColumns[toCol]);
   };
 
   return (
