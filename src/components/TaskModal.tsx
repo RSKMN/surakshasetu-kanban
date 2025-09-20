@@ -20,7 +20,6 @@ type TaskModalProps = {
   task?: Task | null;
 };
 
-// Single, global To Do color (must match KanbanBoard)
 const TODO_COLOR = "#FFD166";
 
 export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
@@ -28,6 +27,7 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
   const [priority, setPriority] = useState<"Low" | "Medium" | "High">(task?.priority ?? "Medium");
   const [status, setStatus] = useState<Task["status"]>(task?.status ?? "todo");
   const [description, setDescription] = useState(task?.description ?? "");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (task) {
@@ -49,61 +49,84 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
 
   async function handleSave() {
     if (!title.trim()) return;
-
-    if (task?.id) {
-      const patch: Partial<Task> = {
-        title: title.trim(),
-        description: description.trim() || null,
-        priority,
-        status,
-      };
-      // If moving into To Do here, enforce the fixed color
-      if (status === "todo") patch.sticky_color = TODO_COLOR;
-
-      const { error } = await supabase.from("tasks").update(patch).eq("id", task.id);
-      if (error) console.error("update task error", error);
+    setSaving(true);
+    try {
+      if (task?.id) {
+        const patch: Partial<Task> = {
+          title: title.trim(),
+          description: description.trim() || null,
+          priority,
+          status,
+        };
+        if (status === "todo") patch.sticky_color = TODO_COLOR;
+        const { error } = await supabase.from("tasks").update(patch).eq("id", task.id);
+        if (error) throw error;
+      } else {
+        const { data: s } = await supabase.auth.getSession();
+        const uid = s?.session?.user?.id ?? null;
+        const createRow = {
+          title: title.trim(),
+          description: description.trim() || null,
+          priority,
+          status: "todo" as const,
+          sticky_color: TODO_COLOR,
+          created_by: uid,
+        };
+        const { error } = await supabase.from("tasks").insert([createRow]);
+        if (error) throw error;
+      }
       close();
-      return;
+    } catch (e: any) {
+      alert(e?.message || String(e));
+    } finally {
+      setSaving(false);
     }
-
-    // New task: force To Do status and color
-    const { data: sess } = await supabase.auth.getSession();
-    const uid = sess.session?.user?.id ?? null;
-
-    const createRow = {
-      title: title.trim(),
-      description: description.trim() || null,
-      priority,
-      status: "todo" as const,
-      sticky_color: TODO_COLOR,
-      created_by: uid, // optional, not used for filtering
-    };
-
-    const { error } = await supabase.from("tasks").insert([createRow]);
-    if (error) console.error("insert task error", error);
-    close();
   }
 
   async function handleDelete() {
     if (!task?.id) return;
     const { error } = await supabase.from("tasks").delete().eq("id", task.id);
-    if (error) console.error("delete task error", error);
+    if (error) alert(error.message);
     close();
   }
 
   return (
-    <div className="modal">
-      <div className="modal-card">
-        <h3>{task ? "Edit Task" : "New Task"}</h3>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.4)",
+        display: "grid",
+        placeItems: "center",
+        zIndex: 1000,
+      }}
+    >
+      <div style={{ width: 420, background: "#0b132b", color: "white", borderRadius: 8, padding: 16 }}>
+        <h3 style={{ marginTop: 0 }}>{task ? "Edit Task" : "New Task"}</h3>
 
         <label>Title</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Task title" />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Task title"
+          style={{ width: "100%", padding: 8, marginBottom: 10 }}
+        />
 
         <label>Description</label>
-        <textarea value={description ?? ""} onChange={(e) => setDescription(e.target.value)} />
+        <textarea
+          value={description ?? ""}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={4}
+          placeholder="Optional details"
+          style={{ width: "100%", padding: 8, marginBottom: 10 }}
+        />
 
         <label>Priority</label>
-        <select value={priority} onChange={(e) => setPriority(e.target.value as any)}>
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value as any)}
+          style={{ width: "100%", padding: 8, marginBottom: 10 }}
+        >
           <option>Low</option>
           <option>Medium</option>
           <option>High</option>
@@ -112,7 +135,11 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
         {task ? (
           <>
             <label>Status</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value as any)}>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as any)}
+              style={{ width: "100%", padding: 8, marginBottom: 10 }}
+            >
               <option value="todo">To Do</option>
               <option value="in_progress">In Progress</option>
               <option value="done">Completed</option>
@@ -120,12 +147,14 @@ export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
           </>
         ) : null}
 
-        <div className="actions">
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           {task?.id ? (
-            <button className="btn-danger" onClick={handleDelete}>Delete</button>
+            <button onClick={handleDelete} style={{ padding: "6px 10px" }}>Delete</button>
           ) : null}
-          <button className="btn-secondary" onClick={close}>Cancel</button>
-          <button className="btn-primary" onClick={handleSave}>{task ? "Save" : "Create"}</button>
+          <button onClick={close} style={{ padding: "6px 10px" }}>Cancel</button>
+          <button onClick={handleSave} style={{ padding: "6px 10px" }}>
+            {saving ? "Saving..." : task ? "Save" : "Create"}
+          </button>
         </div>
       </div>
     </div>

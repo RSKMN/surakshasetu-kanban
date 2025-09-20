@@ -45,7 +45,6 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
 
   useEffect(() => {
     fetchTasks();
-    // Realtime: listen to all task changes
     const channel = supabase
       .channel("public:tasks")
       .on(
@@ -98,7 +97,6 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
     if (error) console.error("persistTaskPatch error", error);
   }
 
-  // Removed the unused 'status' parameter to fix TS6133
   async function persistPositions(items: Task[]) {
     const updates = items.map((t, idx) => ({ id: t.id, position: idx }));
     const { error } = await supabase.from("tasks").upsert(updates, {
@@ -177,45 +175,47 @@ export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
   };
 
   return (
-    <div className="kanban">
-      <div className="kanban-header">
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h2>Team Board</h2>
-        <button onClick={openNew} className="btn-primary">
-          New Task
-        </button>
+        <button onClick={openNew} style={{ padding: "6px 12px" }}>New Task</button>
       </div>
 
       {loading ? (
         <div>Loading...</div>
       ) : (
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="columns">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
             {STATUS.map((col) => (
               <Droppable droppableId={col} key={col}>
                 {(provided) => (
                   <div
-                    className="column"
                     ref={provided.innerRef}
                     {...provided.droppableProps}
+                    style={{ background: "#0b132b", borderRadius: 8, padding: 12, minHeight: 300 }}
                   >
-                    <h3>{LABEL[col]}</h3>
+                    <h3 style={{ marginTop: 0 }}>{LABEL[col]}</h3>
                     {columns[col].map((t, idx) => (
                       <Draggable draggableId={t.id} index={idx} key={t.id}>
                         {(drag) => (
                           <div
-                            className="card"
-                            onClick={() => openEdit(t)}
                             ref={drag.innerRef}
                             {...drag.draggableProps}
                             {...drag.dragHandleProps}
+                            onClick={() => openEdit(t)}
                             style={{
-                              borderLeft: `8px solid ${t.sticky_color ?? "#ccc"}`,
+                              background: "#1c2541",
+                              color: "white",
+                              borderLeft: `8px solid ${t.sticky_color ?? "#415a77"}`,
+                              borderRadius: 6,
+                              padding: 10,
+                              marginBottom: 10,
                               ...drag.draggableProps.style,
                             }}
                           >
-                            <div className="title">{t.title}</div>
+                            <div style={{ fontWeight: 600 }}>{t.title}</div>
                             {t.description ? (
-                              <div className="desc">{t.description}</div>
+                              <div style={{ opacity: 0.85, marginTop: 4 }}>{t.description}</div>
                             ) : null}
                           </div>
                         )}
