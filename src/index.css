@@ -67,3 +67,36 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sa
 .intro-sub{margin:0;font-size:18px;color:var(--muted)}
 .intro-desc{margin:14px 0 22px 0}
 .intro-actions{display:flex;justify-content:center}
+
+/* Two-up grid inside each column */
+.items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+/* Smaller, square notes */
+.card.square {
+  aspect-ratio: 1 / 1;
+  padding: 10px 10px 8px 10px;
+}
+
+/* Priority badge (top-right) */
+.prio {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 11px;
+  box-shadow: 0 2px 6px var(--note-shadow);
+}
+.prio-low { background: #8bd3dd; color: #0b132b; }
+.prio-medium { background: #ffd166; color: #0b132b; }
+.prio-high { background: #ef476f; color: #fff; }
+
+/* Tighter overall cards in a column */
+.column { padding: 10px; }
+.card { margin: 0; }
+.note .note-tape { width: 52px; height: 14px; top: -7px; }
