@@ -143,3 +143,28 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sa
 @media (max-width: 700px) {
   .columns { grid-template-columns: 1fr; }
 }
+/* Replace round status badge with a compact ribbon */
+.ribbon {
+  position: absolute; top: 6px; right: 6px;
+  font-size: 10px; font-weight: 800;
+  background: #ffe; color: #0b132b;
+  padding: 3px 8px; border-radius: 6px;
+  box-shadow: 0 2px 4px var(--note-shadow);
+}
+.ribbon.in_progress, .ribbon.ribbon-in_progress { background: #ffe7b8; }
+.ribbon.done, .ribbon.ribbon-done { background: #c5ffd9; }
+
+/* Bottom-right mini action bar */
+.actions-mini { display: flex; gap: 6px; align-items: center; }
+.mini {
+  font-size: 10px; font-weight: 800; border: 0; cursor: pointer;
+  padding: 4px 6px; border-radius: 6px; color: #0b132b; background: #ffe;
+  box-shadow: 0 2px 4px var(--note-shadow);
+}
+.mini:hover { filter: brightness(1.05); }
+.mini:nth-child(2) { background: #ffe7b8; } /* In Progress color */
+.mini:nth-child(3) { background: #c5ffd9; } /* Done color */
+
+/* Tighten note content so actions fit neatly */
+.card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-top: auto; }
+.assignee { background: rgba(0,0,0,.08); padding: 3px 8px; border-radius: 999px; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
