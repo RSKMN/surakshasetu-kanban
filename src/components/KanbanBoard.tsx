@@ -18,152 +18,227 @@ const LABEL: Record<Status, string> = {
   done: "Completed",
 };
 
+// Single, global To Do color (DB defaults/trigger will also enforce)
+const TODO_COLOR = "#FFD166";
+
 export default function KanbanBoard({ stickyColor }: { stickyColor: string }) {
-  const [userId, setUserId] = useState<string | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  // Load session and initial tasks
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      const uid = data.session?.user?.id ?? null;
-      setUserId(uid);
-      if (uid) await fetchTasks(uid);
-    })();
-  }, []); // get session once [7]
-
-  // Realtime subscription scoped to owner
-  useEffect(() => {
-    if (!userId) return;
-    const channel = supabase
-      .channel("tasks-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "tasks", filter: `created_by=eq.${userId}` },
-        (payload: any) => {
-          if (payload.eventType === "INSERT") {
-            setTasks((prev) => [...prev, payload.new as Task]);
-          } else if (payload.eventType === "UPDATE") {
-            setTasks((prev) => prev.map((t) => (t.id === payload.new.id ? (payload.new as Task) : t)));
-          } else if (payload.eventType === "DELETE") {
-            setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
-          }
-        }
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId]); // filtered realtime per docs [3]
-
-  async function fetchTasks(uid: string) {
-    setLoading(true);
+  async function fetchTasks() {
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
-      .eq("created_by", uid)
+      .order("position", { ascending: true })
       .order("created_at", { ascending: true });
-    if (error) console.error("Fetch failed:", error.message);
-    setTasks((data as Task[]) ?? []);
+    if (error) {
+      console.error("fetchTasks error", error);
+      setTasks([]);
+    } else {
+      setTasks((data as Task[]) ?? []);
+    }
     setLoading(false);
-  } // owner-scoped fetch using filters [7]
+  }
 
-  async function handleDragEnd(result: DropResult) {
+  useEffect(() => {
+    fetchTasks();
+    // Realtime: listen to all task changes (no owner filter)
+    const channel = supabase
+      .channel("public:tasks")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tasks" },
+        (payload) => {
+          setTasks((prev) => {
+            const copy = [...prev];
+            if (payload.eventType === "INSERT") {
+              const row = payload.new as Task;
+              // Avoid dupes
+              if (!copy.find((t) => t.id === row.id)) copy.push(row);
+              return copy;
+            }
+            if (payload.eventType === "UPDATE") {
+              const row = payload.new as Task;
+              const idx = copy.findIndex((t) => t.id === row.id);
+              if (idx !== -1) copy[idx] = row;
+              return copy;
+            }
+            if (payload.eventType === "DELETE") {
+              const row = payload.old as Task;
+              return copy.filter((t) => t.id !== row.id);
+            }
+            return copy;
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const columns = useMemo(() => {
+    const by: Record<Status, Task[]> = {
+      todo: [],
+      in_progress: [],
+      done: [],
+    };
+    for (const t of tasks) by[t.status]?.push(t);
+    return by;
+  }, [tasks]);
+
+  function openNew() {
+    setSelectedTask(null);
+    setModalOpen(true);
+  }
+
+  function openEdit(task: Task) {
+    setSelectedTask(task);
+    setModalOpen(true);
+  }
+
+  async function persistTaskPatch(id: string, patch: Partial<Task>) {
+    const { error } = await supabase.from("tasks").update(patch).eq("id", id);
+    if (error) console.error("persistTaskPatch error", error);
+  }
+
+  // Recalculate in-column positions for stable ordering
+  async function persistPositions(status: Status, items: Task[]) {
+    const updates = items.map((t, idx) => ({
+      id: t.id,
+      position: idx,
+    }));
+    // Batch best-effort; fall back to per-row if needed
+    const { error } = await supabase.from("tasks").upsert(updates, {
+      onConflict: "id",
+    });
+    if (error) console.error("persistPositions error", error);
+  }
+
+  function localMove(
+    sourceArr: Task[],
+    destArr: Task[],
+    sourceIdx: number,
+    destIdx: number,
+    status: Status,
+    newColor?: string
+  ) {
+    const item = sourceArr[sourceIdx];
+    sourceArr.splice(sourceIdx, 1);
+    const moved = { ...item, status, sticky_color: newColor ?? item.sticky_color };
+    destArr.splice(destIdx, 0, moved);
+    return moved;
+  }
+
+  const onDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
-    if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
-    const newStatus = destination.droppableId as Status;
-    const update: Partial<Task> = { status: newStatus };
-    if (newStatus === "in_progress") update.sticky_color = stickyColor;
+    const fromCol = source.droppableId as Status;
+    const toCol = destination.droppableId as Status;
+    if (!STATUS.includes(fromCol) || !STATUS.includes(toCol)) return;
 
-    const { error } = await supabase.from("tasks").update(update).eq("id", draggableId);
-    if (error) {
-      console.error("Drag update failed", error.message);
-      alert("Move failed: " + error.message);
-    }
-  } // simple update; RLS enforces ownership [7]
+    const next = { ...columns };
+    const fromArr = [...next[fromCol]];
+    const toArr = fromCol === toCol ? fromArr : [...next[toCol]];
 
-  const columns = useMemo(
-    () => ({
-      todo: tasks.filter((t) => t.status === "todo"),
-      in_progress: tasks.filter((t) => t.status === "in_progress"),
-      done: tasks.filter((t) => t.status === "done"),
-    }),
-    [tasks]
-  ); // local memoized partitioning [7]
+    // Decide color based on target column
+    let newColor: string | undefined = undefined;
+    if (toCol === "todo") newColor = TODO_COLOR;
+    if (toCol === "in_progress") newColor = stickyColor;
+
+    const moved = localMove(
+      fromArr,
+      toArr,
+      source.index,
+      destination.index,
+      toCol,
+      newColor
+    );
+
+    const nextColumns = {
+      ...columns,
+      [fromCol]: fromCol === toCol ? toArr : fromArr,
+      [toCol]: toArr,
+    };
+
+    // Flatten back to tasks list preserving other columns untouched
+    const untouched = tasks.filter(
+      (t) => t.status !== fromCol && t.status !== toCol
+    );
+    const updated = [...untouched, ...nextColumns.todo, ...nextColumns.in_progress, ...nextColumns.done];
+
+    setTasks(updated);
+
+    // Persist status/color for moved card
+    await persistTaskPatch(draggableId, {
+      status: toCol,
+      sticky_color: moved.sticky_color,
+    });
+
+    // Persist positions in both columns
+    await persistPositions(fromCol, nextColumns[fromCol]);
+    if (fromCol !== toCol) await persistPositions(toCol, nextColumns[toCol]);
+  };
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <button
-          className="btn-primary"
-          onClick={() => {
-            setSelectedTask(null);
-            setModalOpen(true);
-          }}
-        >
-          + New Task
+    <div className="kanban">
+      <div className="kanban-header">
+        <h2>Team Board</h2>
+        <button onClick={openNew} className="btn-primary">
+          New Task
         </button>
       </div>
 
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid md:grid-cols-3 gap-4">
-          {STATUS.map((status) => (
-            <Droppable droppableId={status} key={status}>
-              {(drop) => (
-                <div ref={drop.innerRef} {...drop.droppableProps} className="glass-col p-3 min-h-[220px]">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-slate-100">{LABEL[status]}</h3>
-                    <span className="text-slate-300">{columns[status].length}</span>
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="columns">
+            {STATUS.map((col) => (
+              <Droppable droppableId={col} key={col}>
+                {(provided) => (
+                  <div className="column" ref={provided.innerRef} {...provided.droppableProps}>
+                    <h3>{LABEL[col]}</h3>
+                    {columns[col].map((t, idx) => (
+                      <Draggable draggableId={t.id} index={idx} key={t.id}>
+                        {(drag) => (
+                          <div
+                            className="card"
+                            onClick={() => openEdit(t)}
+                            ref={drag.innerRef}
+                            {...drag.draggableProps}
+                            {...drag.dragHandleProps}
+                            style={{
+                              borderLeft: `8px solid ${t.sticky_color ?? "#ccc"}`,
+                              ...drag.draggableProps.style,
+                            }}
+                          >
+                            <div className="title">{t.title}</div>
+                            {t.description ? (
+                              <div className="desc">{t.description}</div>
+                            ) : null}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
                   </div>
+                )}
+              </Droppable>
+            ))}
+          </div>
+        </DragDropContext>
+      )}
 
-                  {loading && <div className="text-slate-400">Loading...</div>}
-                  {!loading && columns[status].length === 0 && (
-                    <div className="text-slate-400">No tasks</div>
-                  )}
-
-                  {!loading &&
-                    columns[status].map((task, index) => {
-                      const bg = status === "in_progress" ? task.sticky_color || stickyColor : undefined;
-                      return (
-                        <Draggable draggableId={String(task.id)} index={index} key={task.id}>
-                          {(drag) => (
-                            <div
-                              ref={drag.innerRef}
-                              {...drag.draggableProps}
-                              {...drag.dragHandleProps}
-                              className="task-card mb-2"
-                              style={{ ...drag.draggableProps.style, backgroundColor: bg }}
-                              onClick={() => {
-                                setSelectedTask(task);
-                                setModalOpen(true);
-                              }}
-                            >
-                              <div className="text-slate-100 font-medium">{task.title}</div>
-                              {task.description && (
-                                <div className="text-slate-300 text-sm mt-1">{task.description}</div>
-                              )}
-                              {task.priority && (
-                                <div className="text-slate-400 text-xs mt-1">{task.priority}</div>
-                              )}
-                            </div>
-                          )}
-                        </Draggable>
-                      );
-                    })}
-                  {drop.placeholder}
-                </div>
-              )}
-            </Droppable>
-          ))}
-        </div>
-      </DragDropContext>
-
-      <TaskModal isOpen={modalOpen} onClose={() => setModalOpen(false)} task={selectedTask ?? null} />
-    </>
+      <TaskModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        task={selectedTask}
+      />
+    </div>
   );
 }
