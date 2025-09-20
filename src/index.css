@@ -119,3 +119,51 @@ color:#0b132b; background:#ffe; box-shadow:0 2px 4px var(--note-shadow); white-s
 .intro-sub{ margin:0; font-size:18px; color:var(--muted) }
 .intro-desc{ margin:14px 0 22px 0 }
 .intro-actions{ display:flex; justify-content:center }
+
+/* Place status ribbon inside the content area */
+.ribbon {
+  top: 32px;  /* moved down from 6px */
+  right: 8px;
+  position: absolute;
+  z-index: 3; /* above overlay */
+}
+
+/* Give top padding so title clears the ribbon */
+.card.square { padding-top: 44px; } /* was 16px */
+
+/* Meta row in two lines: name on first, status/action on second */
+.card-meta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-auto-rows: auto;
+  row-gap: 6px;
+  align-items: center;
+  margin-top: auto;
+  font-size: 11px;
+}
+
+/* First line: assignee spans full width */
+.assignee {
+  grid-column: 1 / -1;
+  background: rgba(0,0,0,.08);
+  padding: 3px 8px;
+  border-radius: 999px;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Second line: left shows a small status chip, right shows the next-step button */
+.meta-status {
+  background: #ffe;
+  color: #0b132b;
+  padding: 3px 8px;
+  border-radius: 999px;
+  width: max-content;
+}
+.meta-status.in_progress { background: #ffe7b8; }
+.meta-status.done { background: #c5ffd9; }
+
+.actions-mini { justify-self: end; display: flex; gap: 6px; align-items: center; }
+.mini { white-space: nowrap; padding: 5px 8px; border-radius: 10px; font-size: 11px; box-shadow: 0 2px 4px var(--note-shadow); }
