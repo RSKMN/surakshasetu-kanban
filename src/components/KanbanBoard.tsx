@@ -174,6 +174,8 @@ export default function KanbanBoard({
                               style={{ background: t.sticky_color ?? "#ffd", ...drag.draggableProps.style }}
                             >
                               <div className="note-tape" />
+                              <div className="note-header" />
+
                               <div className={`prio prio-${(t.priority || "Medium").toLowerCase()}`}>{t.priority || "Medium"}</div>
                               <div className={`ribbon ribbon-${col}`}>{LABEL[col]}</div>
 
@@ -194,7 +196,8 @@ export default function KanbanBoard({
                                   )}
                                 </div>
                               </div>
-                            </div>
+                              </div>
+                            // </div>
                           )}
                         </Draggable>
                       ))}
