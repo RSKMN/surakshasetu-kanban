@@ -76,3 +76,26 @@ body {
 }
 .textarea { resize: vertical; }
 .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+/* Add to src/index.css */
+.intro-hero {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.intro-card {
+  max-width: 720px;
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid #1d2746;
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+.intro-title { margin: 0 0 8px 0; font-size: 40px; }
+.intro-sub { margin: 0; font-size: 18px; color: var(--muted); }
+.intro-desc { margin: 14px 0 22px 0; color: var(--text); opacity: .95; }
+.intro-actions { display: flex; justify-content: center; }
+.brand { font-weight: 700; }
