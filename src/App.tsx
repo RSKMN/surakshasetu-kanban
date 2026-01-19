@@ -10,7 +10,7 @@ function Intro() {
       <div className="intro-card">
         <h1 className="intro-title">Welcome, Collaborator</h1>
         <p className="intro-sub">
-          Thank you for teaming up on <span className="brand">SurakshaSetu</span> Mobile App
+          Thank you for teaming up on <span className="brand">ERE</span> Research
         </p>
         <p className="intro-desc">
           Plan, prioritize, and deliver with a delightful Kanban experience crafted for civic impact.
@@ -92,8 +92,8 @@ export default function App() {
     <div className="page-pad">
       <header className="topbar">
         <div className="left">
-          <span className="chip">Sprint 2</span>
-          <div className="brand">SurakshaSetu Kanban</div>
+          <span className="chip">Sprint 1</span>
+          <div className="brand">Stakeylock-ERE Kanban</div>
         </div>
 
         <div className="toolbar">
@@ -129,3 +129,4 @@ export default function App() {
     </div>
   );
 }
+
